@@ -1,0 +1,43 @@
+import numpy as np
+from numpy import sin,cos
+
+#1번
+A=np.eye(1000)+np.eye(1000)+np.eye(1000,k=-1)+np.eye(1000,k=1)+np.eye(1000,k=1)+np.eye(1000,k=1)
+A
+
+#2번
+#x + 2y = 10
+#x – 3y = 5
+B=np.array([[1,2],
+           [1,-3]])
+C=np.array([[10],[5]])
+D=list(np.linalg.solve(B,C))
+D
+
+#3번
+H=np.array([[-1,-2,-1,0,0],[-2,1,3,0,0],[2,0,0,-1,-2],[0,2,0,-2,1],[0,0,2,-1,3]])
+I=np.array([[-5],[-7],[4],[2],[0]])
+J=np.linalg.solve(H,I)
+J
+
+#4번
+E=np.array([[1,0]])
+a=20
+F=np.array([[cos(a),-sin(a)],[sin(a),cos(a)]])
+G=np.matmul(E, F)
+G
+
+#5번
+a1 = np.array([[2.46 , 0.00 , 0.00 ]])
+a2 = np.array([[-1.23 , 2.14, 0.00 ]])
+a3 = np.array([[0.00 , 0.00 , 10.00 ]])
+vs10=np.array([[1,0,0]])
+vs1=np.array([[2.46,0,0],[-1.23,2.14,0],[0,0,10]])
+v1=np.linalg.solve(vs1,vs0)
+vs20=np.array([[0,1,0]])
+v2=np.linalg.solve(vs1,vs20)
+vs30=np.array([[0,0,1]])
+v3=np.linalg.solve(vs1,vs30)
+v1
+v2
+v3
