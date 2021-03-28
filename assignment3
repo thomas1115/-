@@ -1,0 +1,288 @@
+import numpy as np
+import scipy as sp
+import time
+import matplotlib.pyplot as plt
+from scipy.linalg import lu,lu_factor, lu_solve
+
+def LUdecomp(a):
+    n = len(a)
+    for k in range(0,n-1):
+        for i in range(k+1,n):
+            if a[i,k] != 0.0:
+                 lam = a[i,k]/a[k,k]
+                 a[i,k+1:n] = a[i,k+1:n] - lam*a[k,k+1:n]
+                 a[i,k] = lam
+    return a
+                 
+def LUsolve(a,b):
+    n = len(a)
+    for k in range(1,n):
+        b[k] = b[k] - np.dot(a[k,0:k],b[0:k])
+    b[n-1] = b[n-1]/a[n-1,n-1]
+    for k in range(n-2,-1,-1):
+        b[k] = (b[k] - np.dot(a[k,k+1:n],b[k+1:n]))/a[k,k]
+    return b
+
+def LUdecomp3(c,d,e):
+    n = len(d)
+    for k in range(1,n):
+        lam = c[k-1]/d[k-1]
+        d[k] = d[k] - lam*e[k-1]
+        c[k-1] = lam
+    return c,d,e
+
+def LUsolve3(c,d,e,b):
+    n = len(d)
+    for k in range(1,n):
+        b[k] = b[k] - c[k-1]*b[k-1]
+    b[n-1] = b[n-1]/d[0,n-1]
+    for k in range(n-1,-1,-1):
+        b[k] = (b[k] - e[0,k]*b[k+1])/d[0,k]
+    return b
+
+A = np.array([[6., 2.,0.,0.,0.],
+             [-1., 7.,2.,0.,0.],
+              [0.,-2.,8.,2.,0.],
+              [0., 0.,3.,7.,-2.],
+              [0., 0.,0.,3.,5.]])
+
+b1 = np.array([[1.,0.,0.,0.,0.],[0.,1.,0.,0.,0.],[0.,0.,1.,0.,0.],[0.,0.,0.,1.,0.],[0.,0.,0.,0.,1.]])
+
+c = np.zeros([1,len(A[0,:])-1])
+e = np.zeros([1,len(A[0,:])-1])
+d = np.zeros([1,len(A[0,:])])
+b = np.zeros([len(A[0,:]),1])
+
+for k in range(0,len(A[0,:])-1):
+    c[0,k] = A[k+1,k]
+
+for k in range(0,len(A[0,:])-1):
+    e[0,k] = A[k,k+1]
+
+for k in range(0,len(A[0,:])):
+    d[0,k] = A[k,k]
+
+a = LUdecomp(A)
+b = LUsolve(a,b1)
+print(np.linalg.solve(A,b1),"\n",b,"\n",np.linalg.inv(A))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+n = 8
+C = np.zeros([n,n])
+C[0,0] = 4
+C[0,1] = -1
+for i in range(2,n):
+    C[i-1,i-2] = C[i-1,i-2] - 1
+    C[i-1,i-1] = C[i-1,i-1] + 4
+    C[i-1,i] = C[i-1,i] - 1
+C[n-1,n-2] = C[n-1,n-2] - 1
+C[n-1,n-1] = C[n-1,n-1] + 4
+B = np.zeros([n,1])
+B[0,0] = 9
+for i in range(1,n):
+    B[i,0] = 5
+
+c = np.zeros([1,n-1])
+e = np.zeros([1,n-1])
+d = np.zeros([1,n])
+b = np.zeros([n+1,1])
+
+for k in range(0,7):
+    c[0,k] = C[k,k+1]
+
+for k in range(0,n-1):
+    e[0,k] = C[k,k+1]
+
+for k in range(0,n):
+    d[0,k] = C[k,k]
+
+a1 = LUdecomp3(c,d,e)
+sol1 = LUsolve3(c,d,e,B)
+
+
+n = 10
+C = np.zeros([n,n])
+C[0,0] = 4
+C[0,1] = -1
+for i in range(2,n):
+    C[i-1,i-2] = C[i-1,i-2] - 1
+    C[i-1,i-1] = C[i-1,i-1] + 4
+    C[i-1,i] = C[i-1,i] - 1
+C[n-1,n-2] = C[n-1,n-2] - 1
+C[n-1,n-1] = C[n-1,n-1] + 4
+B = np.zeros([n,1])
+B[0,0] = 9
+for i in range(1,n):
+    B[i,0] = 5
+
+c = np.zeros([1,n-1])
+e = np.zeros([1,n-1])
+d = np.zeros([1,n])
+b = np.zeros([n+1,1])
+
+for k in range(0,7):
+    c[0,k] = C[k,k+1]
+
+for k in range(0,n-1):
+    e[0,k] = C[k,k+1]
+
+for k in range(0,n):
+    d[0,k] = C[k,k]
+
+a1 = LUdecomp3(c,d,e)
+sol1 = LUsolve3(c,d,e,B)
+
+
+n = 12
+C = np.zeros([n,n])
+C[0,0] = 4
+C[0,1] = -1
+for i in range(2,n):
+    C[i-1,i-2] = C[i-1,i-2] - 1
+    C[i-1,i-1] = C[i-1,i-1] + 4
+    C[i-1,i] = C[i-1,i] - 1
+C[n-1,n-2] = C[n-1,n-2] - 1
+C[n-1,n-1] = C[n-1,n-1] + 4
+B = np.zeros([n,1])
+B[0,0] = 9
+for i in range(1,n):
+    B[i,0] = 5
+
+c = np.zeros([1,n-1])
+e = np.zeros([1,n-1])
+d = np.zeros([1,n])
+b = np.zeros([n+1,1])
+
+for k in range(0,7):
+    c[0,k] = C[k,k+1]
+
+for k in range(0,n-1):
+    e[0,k] = C[k,k+1]
+
+for k in range(0,n):
+    d[0,k] = C[k,k]
+
+a1 = LUdecomp3(c,d,e)
+sol1 = LUsolve3(c,d,e,B)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+n = 8
+C = np.zeros([n,n])
+C[0,0] = 4
+C[0,1] = -1
+for i in range(2,n):
+    C[i-1,i-2] = C[i-1,i-2] - 1
+    C[i-1,i-1] = C[i-1,i-1] + 4
+    C[i-1,i] = C[i-1,i] - 1
+C[n-1,n-2] = C[n-1,n-2] - 1
+C[n-1,n-1] = C[n-1,n-1] + 4
+B = np.zeros([n,1])
+B[0,0] = 9
+for i in range(1,n):
+    B[i,0] = 5
+
+c = np.zeros([1,n-1])
+e = np.zeros([1,n-1])
+d = np.zeros([1,n])
+b = np.zeros([n+1,1])
+
+for k in range(0,7):
+    c[0,k] = C[k,k+1]
+
+for k in range(0,n-1):
+    e[0,k] = C[k,k+1]
+
+for k in range(0,n):
+    d[0,k] = C[k,k]
+    
+alpha = time.time()
+a1 = LUdecomp3(c,d,e)
+sol1 = LUsolve3(c,d,e,B)
+beta = time.time()
+t1 = beta - alpha
+    
+
+alpha = time.time()
+a1 = LUdecomp(C)
+sol = LUsolve(a1,B)
+beta = time.time()
+t2 = beta - alpha
+
+print(t1,t2,"\n","dt =",t2-t1)
+
+
+
+
+
+
+
+
+
+
+
+
+W = 1
+A = np.array([[2,-1,0,0,0],[-1,4,-1,0,0],[0,-1,4,-1,-2],[0,0,-1,2,-1],[0,0,2,-1,3]])
+B = np.array([[W/2.5],[W/2.5],[W/2.5],[W/2.5],[W/2.5]])
+sol1 = np.linalg.solve(A,B)
+
+W = 2
+A = np.array([[2,-1,0,0,0],[-1,4,-1,0,0],[0,-1,4,-1,-2],[0,0,-1,2,-1],[0,0,2,-1,3]])
+B = np.array([[W/2.5],[W/2.5],[W/2.5],[W/2.5],[W/2.5]])
+sol2 = np.linalg.solve(A,B)
+
+W = 3
+A = np.array([[2,-1,0,0,0],[-1,4,-1,0,0],[0,-1,4,-1,-2],[0,0,-1,2,-1],[0,0,2,-1,3]])
+B = np.array([[W/2.5],[W/2.5],[W/2.5],[W/2.5],[W/2.5]])
+sol3 = np.linalg.solve(A,B)
+
+W = 4
+A = np.array([[2,-1,0,0,0],[-1,4,-1,0,0],[0,-1,4,-1,-2],[0,0,-1,2,-1],[0,0,2,-1,3]])
+B = np.array([[W/2.5],[W/2.5],[W/2.5],[W/2.5],[W/2.5]])
+sol4 = np.linalg.solve(A,B)
+
+
+x = range(1,5)
+y = [sol1[i] for i in x]
+plt.plot(x,y,'r')
+
+x = range(1,5)
+y = [sol2[i] for i in x]
+plt.plot(x,y,'g')
+
+x = range(1,5)
+y = [sol3[i] for i in x]
+plt.plot(x,y,'b')
+
+x = range(1,5)
+y = [sol4[i] for i in x]
+plt.plot(x,y,'y')
+
+plt.show()
