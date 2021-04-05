@@ -1,0 +1,157 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[13]:
+
+
+import numpy as np
+import math
+import scipy as sp
+import time
+import matplotlib.pyplot as plt
+from scipy.linalg import lu,lu_factor, lu_solve
+
+def LUdecomp(a):
+    n = len(a)
+    for k in range(0,n-1):
+        for i in range(k+1,n):
+            if a[i,k] != 0.0:
+                 lam = a[i,k]/a[k,k]
+                 a[i,k+1:n] = a[i,k+1:n] - lam*a[k,k+1:n]
+                 a[i,k] = lam
+    return a
+                 
+def LUsolve(a,b):
+    n = len(a)
+    for k in range(1,n):
+        b[k] = b[k] - np.dot(a[k,0:k],b[0:k])
+    b[n-1] = b[n-1]/a[n-1,n-1]
+    for k in range(n-2,-1,-1):
+        b[k] = (b[k] - np.dot(a[k,k+1:n],b[k+1:n]))/a[k,k]
+    return b
+
+def LUdecomp3(c,d,e):
+    n = len(d)
+    for k in range(1,n):
+        lam = c[k-1]/d[k-1]
+        d[k] = d[k] - lam*e[k-1]
+        c[k-1] = lam
+    return c,d,e
+
+def LUsolve3(c,d,e,b):
+    n = len(d)
+    for k in range(1,n):
+        b[k] = b[k] - c[k-1]*b[k-1]
+    b[n-1] = b[n-1]/d[0,n-1]
+    for k in range(n-1,-1,-1):
+        b[k] = (b[k] - e[0,k]*b[k+1])/d[0,k]
+    return b
+
+def Ax(v):
+    n = len(v)
+    Ax = np.zeros(n)
+    Ax[0] = 2.0*v[0] - v[1] + v[n-1]
+    A[1:n-1] = -v[0:n-2] + 2.0*v[1:n-1] -v[2:n]
+    Ax[n-1] = -v[n-2] + 2.0*v[n-1] + v[0]
+    return Ax
+
+def Av(x):
+    return A@x
+
+def conjGrad(Av,x,b,tol = 1.0e-9):
+    n = len(b)
+    r = b - Av(x)
+    s = r.copy()
+    for i in range(n):
+        u = Av(s)
+        alpha = np.dot(s,r)/np.dot(s,u)
+        x = x + alpha*s
+        r = b - Av(x)
+        if(math.sqrt(np.dot(r,r))) < tol:
+            break
+        else:
+            beta = -np.dot(r,u)/np.dot(s,u)
+            np.dot(s,u)
+            s = r + beta*s
+    return x,i
+
+def gauss(a,b):
+
+    for k in range(n-1,0,-1): 
+        for i in range(k-1,-1,-1): 
+            if a[i,k] != 0.0 :
+                lam = a[i,k]/a[k,k] 
+                a[i,k:n] = a[i,k:n] - lam*a[k,k:n] 
+                b[i] = b[i] - lam*b[k]
+    
+    
+    for k in range(-1,n-1,1):
+        x[k] = ( b[k] - np.dot(a[k,k+1:n],x[k+1:n]) )/a[k,k]
+
+    return x
+
+
+
+A = np.array([[2,-1,0,0,0],[-1,4,-1,0,0],[0,-1,4,-1,-2],[0,0,-1,2,-1],[0,0,-2,-1,3]])
+
+b = np.array([1/2.5,1/2.5,1/2.5,1/2.5,1/2.5])
+
+x= np.zeros(5)
+conjGrad(A,x,b,tol=1.0e-9)
+
+
+n = 10
+C = np.zeros([n,n])
+C[0,0] = 4
+C[0,1] = -1
+x= np.zeros(10)
+for i in range(2,n):
+    C[i-1,i-2] = C[i-1,i-2] - 1
+    C[i-1,i-1] = C[i-1,i-1] + 4
+    C[i-1,i] = C[i-1,i] - 1
+C[n-1,n-2] = C[n-1,n-2] - 1
+C[n-1,n-1] = C[n-1,n-1] + 4
+B = np.zeros([n,1])
+B[0,0] = 9
+for i in range(1,n):
+    B[i,0] = 5
+    
+
+    
+alpha = time.time()
+gauss(C,B)
+beta = time.time()
+t1 = beta - alpha
+
+alpha = time.time()
+conjGrad(C,x,B,tol=1.0e-9)
+beta = time.time()
+t2 = beta - alpha
+
+
+A = np.array([[1,0,1],[0,1,0],[0,0,1]])
+b = np.array([[0],[0],[1]])
+x = np.array([-1,0,0])
+conjGrad(A,x,b,tol=1.0e-9)
+
+n = len(b)
+r = b - Av(x)
+s = np.array([0,0,1])
+for i in range(n):
+    u = Av(s)
+    alpha = np.dot(s,r)/np.dot(s,u)
+    x = x + alpha*s
+    r = b - Av(x)
+    if(math.sqrt(np.dot(r,r))) < tol:
+        break
+    else:
+        beta = -np.dot(r,u)/np.dot(s,u)
+        np.dot(s,u)
+        s = r + beta*s
+
+
+# In[ ]:
+
+
+
+
