@@ -1,0 +1,129 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+from numpy import sign
+from numpy import sin
+
+
+u = 2510 #m/s
+M0 = 2800000 #kg
+m = 13300 #kg/s
+g = 9.81 #m/s
+v = 335 #m/s
+
+def rootsearch(f,a,b,dx):
+    x1 = a; f1 = f(a)
+    x2 = a + dx; f2 = f(x2)
+    while sign(f1) == sign(f2):
+        if x1 >= b: return None,None
+        x1 = x2; f1 = f2
+        x2 = x1 + dx; f2 = f(x2)
+    else:
+        return x1,x2
+    
+def newtonRaphson(f,df,a,b,tol=1.0e-9):
+    #import error
+    from numpy import sign
+    fa = f(a)
+    if fa == 0.0: return a
+    fb = f(b)
+    if fb == 0.0: return b
+    #if sign(fa) == sign(fb): error.err(’Root is not bracketed’)
+    x = 0.5*(a + b)
+    for i in range(30):
+        fx = f(x)
+        if fx == 0.0: return x
+        # Tighten the brackets on the root
+        if sign(fa) != sign(fx): b = x
+        else: a = x
+        # Try a Newton-Raphson step
+        dfx = df(x)
+        # If division by zero, push x out of bounds
+        try: dx = -fx/dfx
+        except ZeroDivisionError: dx = b - a
+        x = x + dx
+        # If the result is outside the brackets, use bisection
+        if (b - x)*(x - a) < 0.0:
+            dx = 0.5*(b - a)
+            x = a + dx
+            # Check for convergence
+        if abs(dx) < tol*max(abs(b),1.0): return x
+    #print(’Too many iterations in Newton-Raphson’)
+
+
+def ridder(f,a,b,tol=1.0e-9):
+    fa = f(a)
+    if fa == 0.0: return a
+    fb = f(b)
+    if fb == 0.0: return b
+    c = 0.5*(a+b); fc = f(c)
+    if sign(fb)!= sign(fc): a = c; fa = fc
+    for i in range(30):
+        # Compute the improved root x from Ridder’s formula
+        c = 0.5*(a + b); fc = f(c)
+        s = math.sqrt(fc**2 - fa*fb)
+        if s == 0.0: return None
+        dx = (c - a)*fc/s
+        if (fa - fb) < 0.0: dx = -dx
+        x = c + dx; fx = f(x)
+        # Test for convergence
+        if i > 0:
+            if abs(x - xOld) < tol*max(abs(x),1.0): return x
+        xOld = x
+        # Re-bracket the root as tightly as possible
+        if sign(fc) == sign(fx):
+            if sign(fa)!= sign(fx): b = x; fb = fx
+            else: a = x; fa = fx
+        else:
+            a = c; b = x; fa = fc; fb = fx
+    return None
+    print("Too many iterations")
+
+def newton(f,df,x):
+    return x - f(x)/df(x)
+
+#1
+def f(t):
+    return u*np.log(M0/(M0-(m*t)))-(g*t) - v
+
+tx = np.linspace(0,100,400)
+#plt.plot(tx,f(tx))
+
+x1,x2 = rootsearch(f,40,80,1)
+time = ridder(f,x1,x2,tol = 1.0e-9)
+
+#2
+def g(x):
+    return 1.3 - (11/20)*x - 0.7*np.log(x)
+tx = np.linspace(1,3,100)
+#plt.plot(tx,g(tx))
+
+x1,x2 = rootsearch(g,1.5,2.0,0.1)
+
+t1dt2 = ridder(g,x1,x2,tol = 1.0e-9)
+ans = 1/t1dt2
+
+
+#3
+h1 = lambda x : R + R*e*sin(np.deg2rad(-30+a)) - C
+
+
+
+
+#4
+#가
+def i(x):
+    return x**4 + 0.9*x**3 - 2.3*x**2 + 3.6*x -25.2
+
+i1 = lambda x : x**4 + 0.9*x**3 - 2.3*x**2 + 3.6*x -25.2
+i2 = lambda x :4*x**3 + 0.9*3*x**2 - 2.3*2*x + 3.6
+tx = np.linspace(-4,3,200)
+plt.plot(tx,i(tx))
+ans1 = newtonRaphson(i1,i2,-5,-2,tol=1.0e-9)
+ans2 = newtonRaphson(i1,i2,2,4,tol=1.0e-9)
+
+#나
+x = 2
+for i in range(5):
+    x = newton(i1,i2,x)
+ans = x
