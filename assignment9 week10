@@ -1,0 +1,91 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from numpy import sin, cos
+
+#1
+# central finite difference
+#f''(x) = (f(x-dx)-2*f(x)+f(x+dx))/(dx**2)
+#forward finite difference
+#f''(x) = (f(x)-2*f(x+dx) + f(x+2*dx))/(h**2)
+
+
+#a
+poolx = np.array([0.84,0.92,1.00,1.08,1.16])
+pooly = np.array([0.431711,0.398519,0.367879,0.339596,0.313486])
+ddf84 = (0.431711-2*0.398519+0.367879)/(0.08**2)
+ddf1 = (0.398519-2*0.367879+0.339596)/(0.08**2)
+
+
+#b
+#G = ((2**p)*g(h1/2)-g(h1))/(2**p-1)
+h1 = 0.08
+g = lambda x:(0.398519-2*0.367879+0.339596)/(x**2)
+
+p = 2
+ansf = ((2**p)*g(h1/2)-g(h1))/((2**p)-1)
+
+
+#c
+poolxt = np.array([0.92,1.00,1.08])
+poolyt = np.array([0.398519,0.367879,0.339596])
+
+t1 = np.polyfit(poolxt,poolyt,2)
+ans1 = t1[2]*2
+
+
+
+#2
+R = 1000
+tt = np.arange(0,185,5)
+xl2 = R*(cos(np.deg2rad(tt))+(((2.5**2)-(sin(np.deg2rad(tt))**2))**0.5))
+xl = R*(cos(np.deg2rad(tt))+(6.25-(sin(np.deg2rad(tt))**2))**0.5)
+def dx1(n):
+    if n == 0 :
+        return (-xl[0]+xl[1])/(np.deg2rad(5))
+    if n == 36 :
+        return (-xl[35]+xl[36])/(np.deg2rad(5))
+    return (-xl[n-1]+xl[n+1])/(2*np.deg2rad(5))
+y = np.zeros([1,37])
+
+for i in range(0,37):
+    y[0,i] = dx1(i)
+    
+xt = np.arange(0,37,1)
+plt.plot(xt*5,y[0,xt])
+
+plt.clf()
+
+
+
+#3
+#a
+dx = 1
+xt = np.arange(0,361,1)
+plt.plot(xt,sin(np.deg2rad(xt)))
+def s(x):
+    return sin(np.deg2rad(x))
+dx2 = lambda x : ((-s(x-dx)+s(x+dx))/(2*dx))*57.298688498550185
+#plt.plot(xt,dx2(xt))
+plt.plot(xt,dx2(xt))
+
+
+#b
+dx = 3.14/5
+xt = np.arange(0,361,1)
+plt.plot(xt,sin(np.deg2rad(xt)))
+def s(x):
+    return sin(np.deg2rad(x))
+dx2 = lambda x : ((-s(x-dx)+s(x+dx))/(2*dx))*57.298688498550185
+#plt.plot(xt,dx2(xt))
+plt.plot(xt,dx2(xt))
+
+dx = 3.14/20
+xt = np.arange(0,361,1)
+plt.plot(xt,sin(np.deg2rad(xt)))
+def s(x):
+    return sin(np.deg2rad(x))
+dx2 = lambda x : ((-s(x-dx)+s(x+dx))/(2*dx))*57.298688498550185
+#plt.plot(xt,dx2(xt))
+plt.plot(xt,dx2(xt))
+
+plt.plot(xt,cos(np.deg2rad(xt)))
